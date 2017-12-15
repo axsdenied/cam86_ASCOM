@@ -50,12 +50,16 @@ namespace ASCOM.cam86
         private System.Timers.Timer timerCoolingStartingPowerPercent;
         private System.Timers.Timer timerCoolingMaximumPowerPercent;
         private System.Timers.Timer timerPIDproportionalGain;
+        private System.Timers.Timer timerPIDintegralGain;
+        private System.Timers.Timer timerPIDderivativeGain;
         private decimal tempGain;
         private decimal tempOffset;
         private decimal tempReadTime;
         private decimal tempCoolingStartingPowerPercent;
         private decimal tempCoolingMaximumPowerPercent;
         private decimal tempPIDproportionalGain;
+        private decimal tempPIDintegralGain;
+        private decimal tempPIDderivativeGain;
         private const int invalidValue = -10000;
 
         private double tempCCDbackup = 0;
@@ -151,6 +155,36 @@ namespace ASCOM.cam86
                     updateMainFormCameraParameters(sender, e);
 
                 tempPIDproportionalGain = invalidValue;
+            }
+        }
+
+        void timerPIDintegralGainElapsedHandler(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (tempPIDintegralGain != invalidValue)
+            {
+                Camera.PIDintegralGainState = (double)numericUpDownPIDKi.Value;
+                Camera.PIDintegralGainStateDirty = true;
+
+                // call event from the main form
+                if (updateMainFormCameraParameters != null)
+                    updateMainFormCameraParameters(sender, e);
+
+                tempPIDintegralGain = invalidValue;
+            }
+        }
+
+        void timerPIDderivativeGainElapsedHandler(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (tempPIDderivativeGain != invalidValue)
+            {
+                Camera.PIDderivativeGainState = (double)numericUpDownPIDKd.Value;
+                Camera.PIDderivativeGainStateDirty = true;
+
+                // call event from the main form
+                if (updateMainFormCameraParameters != null)
+                    updateMainFormCameraParameters(sender, e);
+
+                tempPIDderivativeGain = invalidValue;
             }
         }
 
@@ -266,6 +300,17 @@ namespace ASCOM.cam86
             timerPIDproportionalGain.SynchronizingObject = this;
             timerPIDproportionalGain.AutoReset = false;
             timerPIDproportionalGain.Elapsed += timerPIDproportionalGainElapsedHandler;
+
+            timerPIDintegralGain = new System.Timers.Timer(timerIntervals);
+            timerPIDintegralGain.SynchronizingObject = this;
+            timerPIDintegralGain.AutoReset = false;
+            timerPIDintegralGain.Elapsed += timerPIDintegralGainElapsedHandler;
+
+            timerPIDderivativeGain = new System.Timers.Timer(timerIntervals);
+            timerPIDderivativeGain.SynchronizingObject = this;
+            timerPIDderivativeGain.AutoReset = false;
+            timerPIDderivativeGain.Elapsed += timerPIDderivativeGainElapsedHandler;
+
         }
 
         private void setupWindowSize()
@@ -274,7 +319,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 26);
+                panelImageInfo.Location = new Point(8, 40);
                 panelImageInfo.Visible = true;
                 panelSettings.Visible = false;
                 panelGainOffset.Visible = false;
@@ -290,7 +335,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 26);
+                panelImageInfo.Location = new Point(8, 40);
                 panelSettings.Location = new Point(8, panelImageInfo.Location.Y + panelImageInfo.Size.Height);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
@@ -313,7 +358,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = true;
 
-                panelSettings.Location = new Point(8, 26);
+                panelSettings.Location = new Point(8, 40);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
 
@@ -422,6 +467,8 @@ namespace ASCOM.cam86
             offsetNumUpDown.Value = Camera.offsetState;
             numericUpDownReadingTime.Value = Camera.readingTimeState;
             numericUpDownPIDKp.Value = (decimal)Camera.PIDproportionalGainState;
+            numericUpDownPIDKi.Value = (decimal)Camera.PIDintegralGainState;
+            numericUpDownPIDKd.Value = (decimal)Camera.PIDderivativeGainState;
 
             checkBoxDHT22.Checked = Camera.DHT22presentState;
             if (!checkBoxDHT22.Checked)
@@ -450,6 +497,8 @@ namespace ASCOM.cam86
             Camera.readingTimeState = (short)numericUpDownReadingTime.Value;
 
             Camera.PIDproportionalGainState = (double)numericUpDownPIDKp.Value;
+            Camera.PIDintegralGainState = (double)numericUpDownPIDKi.Value;
+            Camera.PIDderivativeGainState = (double)numericUpDownPIDKd.Value;
 
             Camera.DHT22presentState = checkBoxDHT22.Checked;
 
@@ -537,6 +586,10 @@ namespace ASCOM.cam86
                 buttonAbout.ForeColor = Color.Orange;
                 numericUpDownPIDKp.BackColor = Color.DarkRed;
                 numericUpDownPIDKp.ForeColor = Color.Orange;
+                numericUpDownPIDKi.BackColor = Color.DarkRed;
+                numericUpDownPIDKi.ForeColor = Color.Orange;
+                numericUpDownPIDKd.BackColor = Color.DarkRed;
+                numericUpDownPIDKd.ForeColor = Color.Orange;
 
                 if (labelVersionInformation.BackColor != Color.Yellow)
                     labelVersionInformation.BackColor = Color.Black;
@@ -572,6 +625,10 @@ namespace ASCOM.cam86
                 buttonAbout.ForeColor = SystemColors.WindowText;
                 numericUpDownPIDKp.BackColor = SystemColors.Window;
                 numericUpDownPIDKp.ForeColor = SystemColors.WindowText;
+                numericUpDownPIDKi.BackColor = SystemColors.Window;
+                numericUpDownPIDKi.ForeColor = SystemColors.WindowText;
+                numericUpDownPIDKd.BackColor = SystemColors.Window;
+                numericUpDownPIDKd.ForeColor = SystemColors.WindowText;
 
                 if (labelVersionInformation.BackColor != Color.Yellow)
                     labelVersionInformation.BackColor = SystemColors.Control;
@@ -801,6 +858,46 @@ namespace ASCOM.cam86
             }
         }
 
+        private void numericUpDownPIDKi_ValueChanged(object sender, EventArgs e)
+        {
+            if (cameraConnected)
+            {
+                if (!timerPIDintegralGain.Enabled)
+                {
+                    timerPIDintegralGain.Start();
+                    tempPIDintegralGain = numericUpDownPIDKi.Value;
+                }
+                else
+                {
+                    // restart the timer, we don't need to update the camera while values are being changed
+                    timerPIDintegralGain.Stop();
+                    timerPIDintegralGain.Start();
+
+                    tempPIDintegralGain = numericUpDownPIDKi.Value;
+                }
+            }
+        }
+
+        private void numericUpDownPIDKd_ValueChanged(object sender, EventArgs e)
+        {
+            if (cameraConnected)
+            {
+                if (!timerPIDderivativeGain.Enabled)
+                {
+                    timerPIDderivativeGain.Start();
+                    tempPIDderivativeGain = numericUpDownPIDKd.Value;
+                }
+                else
+                {
+                    // restart the timer, we don't need to update the camera while values are being changed
+                    timerPIDderivativeGain.Stop();
+                    timerPIDderivativeGain.Start();
+
+                    tempPIDderivativeGain = numericUpDownPIDKd.Value;
+                }
+            }
+        }
+
         private void checkBoxDHT22_CheckedChanged(object sender, EventArgs e)
         {
             if (cameraConnected)
@@ -843,6 +940,11 @@ namespace ASCOM.cam86
 
             Camera.settingsWindowSizeState = windowSize;
             Camera.settingsWindowSizeStateDirty = true;
+        }
+
+        private void labelVersionInformation_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

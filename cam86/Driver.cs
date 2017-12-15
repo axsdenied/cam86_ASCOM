@@ -43,6 +43,7 @@
 //                                       Add a button to minimise the settings form
 //                                       Add a button to toggle between image info only or settings as well when camera is connected
 // 27-Sep-2017  Luka Pravica     0.7.3   Increase revision number because of the white-line bug fixes in the LLD when CCD temperature control (like Cooling Aid in APT) is used
+// 24-Nov-2017  Oscar Casanova   0.7.5   Add Ki and Kd to be compatible with full PID control implemented
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -100,7 +101,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.3L";
+        internal static string driverVersion = "0.7.5";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -123,6 +124,8 @@ namespace ASCOM.cam86
         internal static string settingsWindowOpenOnConnectProfileName = "SettingsWindowOpenOnConnect";
         internal static string settingsWindowSizeProfileName = "SettingsWindowSize";
         internal static string PIDproportionalGainProfileName = "PIDproportionalGain";
+        internal static string PIDintegralGainProfileName = "PIDintegralGain";
+        internal static string PIDderivativeGainProfileName = "PIDderivativeGain";
         internal static string DHT22presentProfileName = "DHT22Present";
 
         internal static string traceStateDefault = "false";
@@ -141,7 +144,9 @@ namespace ASCOM.cam86
         internal static string settingsWindowLocationDefault = "0,0";
         internal static string settingsWindowOpenOnConnectDefault = "true";
         internal static string settingsWindowSizeDefault = Enum.GetName(typeof(settingsWindowSizeE), settingsWindowSizeE.cameraOnFullOptions);
-        internal static string PIDproportionalGainDefault = 0.04.ToString(); // dirty way to take care of the internalisation
+        internal static string PIDproportionalGainDefault = 50.0.ToString(); // dirty way to take care of the internalisation
+        internal static string PIDintegralGainDefault = 0.0.ToString(); // dirty way to take care of the internalisation
+        internal static string PIDderivativeGainDefault = 0.0.ToString(); // dirty way to take care of the internalisation
         internal static string DHT22presentDefault = "false";
 
         internal static bool traceState;
@@ -161,6 +166,8 @@ namespace ASCOM.cam86
         internal static bool settingsWindowOpenOnConnectState;
         internal static settingsWindowSizeE settingsWindowSizeState;
         internal static double PIDproportionalGainState;
+        internal static double PIDintegralGainState;
+        internal static double PIDderivativeGainState;
         internal static bool DHT22presentState;
 
         // flags if the setting has been changed and needs to be sent to camera
@@ -178,6 +185,8 @@ namespace ASCOM.cam86
         internal static bool settingsWindowOpenOnConnectStateDirty = true;
         internal static bool settingsWindowSizeStateDirty = true;
         internal static bool PIDproportionalGainStateDirty = true;
+        internal static bool PIDintegralGainStateDirty = true;
+        internal static bool PIDderivativeGainStateDirty = true;
         internal static bool DHT22presentStateDirty = true;
 
 
@@ -267,6 +276,10 @@ namespace ASCOM.cam86
         static extern bool cameraSetCoolingMaximumPowerPercentage(int val);
         [DllImport(LowLevelDLL, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         static extern bool cameraSetPIDproportionalGain(double proportionalGain);
+        [DllImport(LowLevelDLL, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        static extern bool cameraSetPIDintegralGain(double integralGain);
+        [DllImport(LowLevelDLL, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        static extern bool cameraSetPIDderivativeGain(double derivativeGain);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="cam86"/> class.
@@ -466,6 +479,8 @@ namespace ASCOM.cam86
                     settingsWindowOpenOnConnectStateDirty = true;
                     settingsWindowSizeStateDirty = true;
                     PIDproportionalGainStateDirty = true;
+                    PIDintegralGainStateDirty = true;
+                    PIDderivativeGainStateDirty = true;
                     DHT22presentStateDirty = true;
 
                     DHTTimer.Enabled = false;
@@ -1677,6 +1692,12 @@ namespace ASCOM.cam86
                 bool Kp_valid = Double.TryParse(driverProfile.GetValue(driverID, PIDproportionalGainProfileName, string.Empty, PIDproportionalGainDefault), out PIDproportionalGainState);
                 if (!Kp_valid)
                     PIDproportionalGainState = Convert.ToDouble(PIDproportionalGainDefault);
+                bool Ki_valid = Double.TryParse(driverProfile.GetValue(driverID, PIDintegralGainProfileName, string.Empty, PIDintegralGainDefault), out PIDintegralGainState);
+                if (!Ki_valid)
+                    PIDintegralGainState = Convert.ToDouble(PIDintegralGainDefault);
+                bool Kd_valid = Double.TryParse(driverProfile.GetValue(driverID, PIDderivativeGainProfileName, string.Empty, PIDderivativeGainDefault), out PIDderivativeGainState);
+                if (!Kd_valid)
+                    PIDderivativeGainState = Convert.ToDouble(PIDderivativeGainDefault);
 
                 // need to extract the window coordinates first
                 string[] windowLocation = (driverProfile.GetValue(driverID, settingsWindowLocationProfileName, string.Empty, settingsWindowLocationDefault)).Split(',');
@@ -1712,6 +1733,8 @@ namespace ASCOM.cam86
                 driverProfile.WriteValue(driverID, settingsWindowSizeProfileName, settingsWindowSizeState.ToString());
                 driverProfile.WriteValue(driverID, settingsWindowLocationProfileName, settingsWindowLocationState.X + "," + settingsWindowLocationState.Y);
                 driverProfile.WriteValue(driverID, PIDproportionalGainProfileName, PIDproportionalGainState.ToString());
+                driverProfile.WriteValue(driverID, PIDintegralGainProfileName, PIDintegralGainState.ToString());
+                driverProfile.WriteValue(driverID, PIDderivativeGainProfileName, PIDderivativeGainState.ToString());
                 driverProfile.WriteValue(driverID, DHT22presentProfileName, DHT22presentState.ToString());
 
             }
@@ -1951,6 +1974,38 @@ namespace ASCOM.cam86
                 }
                 updateProfile = true;
             }
+
+            if (PIDintegralGainStateDirty)
+            {
+                if (cameraSetPIDintegralGain(PIDintegralGainState))
+                {
+                    PIDintegralGainStateDirty = false;
+                    tl.LogMessage("updateCameraParametersEvent", "PID Ki set to " + PIDintegralGainState);
+                }
+                else
+                {
+                    tl.LogMessage("updateCameraParametersEvent", "Can't set PID Ki to " + PIDintegralGainState);
+                    //throw new ASCOM.InvalidOperationException("Can't set 'cameraSetPIDintegralGain' to " + PIDintegralGainState);
+                }
+                updateProfile = true;
+            }
+
+            if (PIDderivativeGainStateDirty)
+            {
+                if (cameraSetPIDderivativeGain(PIDderivativeGainState))
+                {
+                    PIDderivativeGainStateDirty = false;
+                    tl.LogMessage("updateCameraParametersEvent", "PID Kd set to " + PIDderivativeGainState);
+                }
+                else
+                {
+                    tl.LogMessage("updateCameraParametersEvent", "Can't set PID Kd to " + PIDderivativeGainState);
+                    //throw new ASCOM.InvalidOperationException("Can't set 'cameraSetPIDderivativeGain' to " + PIDderviativeGainState);
+                }
+                updateProfile = true;
+            }
+
+
 
             if (DHT22presentStateDirty)
             {
