@@ -1,16 +1,16 @@
 # cam86_fw
 Custom ASCOM driver for CAM86 DIY camera (Sony ICX453AQ).
 
-**Download** the executable version of the driver [here](https://github.com/axsdenied/cam86_ASCOM/blob/master/cam86_setup.exe).
-
-**Download** the firmware [here](https://github.com/axsdenied/cam86_fw/blob/master/Exe/cam86.hex).
-
 This project is based on work of Ukrainian telescope amateurs.
 Most of their work is shared on this huge forum thread:
 http://www.astroclub.kiev.ua/forum/index.php?topic=28929.0
 
 The current work is described here
 http://www.iceinspace.com.au/forum/showthread.php?t=146493
+
+**Download** the executable version of the driver [here](https://github.com/axsdenied/cam86_ASCOM/blob/master/cam86_setup.exe).
+**Download** the firmware [here](https://github.com/axsdenied/cam86_fw/blob/master/Exe/cam86.hex).
+
 
 # See also
 http://astroccd.org/
