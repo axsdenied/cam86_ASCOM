@@ -14,6 +14,9 @@ http://www.iceinspace.com.au/forum/showthread.php?t=146493
 **Download** the firmware [here](https://github.com/axsdenied/cam86_fw/blob/master/Exe/cam86.hex).
 
 
+The source code for the camera firmware can be found [here](https://github.com/axsdenied/cam86_fw) while the low level DLL can be found [here](https://github.com/axsdenied/cam86_dll).
+
+
 # See also
 http://astroccd.org/
 (Ukraine/Ukrainian)
