@@ -5,8 +5,8 @@
 [Setup]
 AppID={{48d86f1b-0f09-4bdc-a0c3-1aa42245fd2b}
 AppName=ASCOM cam86 Camera Driver
-AppVerName=ASCOM cam86 Camera Driver 0.7.3L
-AppVersion=0.7.3L
+AppVerName=ASCOM cam86 Camera Driver 0.7.6
+AppVersion=0.7.6
 AppPublisher=<www.astroccd.org>
 AppPublisherURL=http://www.astroccd.org
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
@@ -17,7 +17,7 @@ DefaultDirName="{cf}\ASCOM\Camera\Cam86"
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 OutputDir="."
-OutputBaseFilename="cam86_v0.7.3L_setup"
+OutputBaseFilename="cam86_v0.7.6_setup"
 Compression=lzma
 SolidCompression=yes
 LicenseFile=installer files\COPYING

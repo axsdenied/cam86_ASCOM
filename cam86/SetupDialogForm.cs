@@ -66,6 +66,8 @@ namespace ASCOM.cam86
         private double dewPointBackup = 0;
         private string backuplabelVersionInformation = "";
 
+        private double ccdTemp = 0;
+
         private settingsWindowSizeE windowSize = settingsWindowSizeE.cameraOnFullOptions;
 
         void timerGainElapsedHandler(object sender, System.Timers.ElapsedEventArgs e)
@@ -264,7 +266,7 @@ namespace ASCOM.cam86
         public void updateTemperatureLabel(double sensorTemperature)
         {
             tempCCDbackup = sensorTemperature;
-            labelTemperature.Text = "T=" + sensorTemperature.ToString("F1") + "C";
+            labelTemperature.Text = "T=" + sensorTemperature.ToString("F1") + "/" + ccdTemp.ToString("F1") + "C";
         }
 
         public SetupDialogForm()
@@ -319,7 +321,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 40);
+                panelImageInfo.Location = new Point(8, 28);
                 panelImageInfo.Visible = true;
                 panelSettings.Visible = false;
                 panelGainOffset.Visible = false;
@@ -335,7 +337,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 40);
+                panelImageInfo.Location = new Point(8, 28);
                 panelSettings.Location = new Point(8, panelImageInfo.Location.Y + panelImageInfo.Size.Height);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
@@ -358,7 +360,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = true;
 
-                panelSettings.Location = new Point(8, 40);
+                panelSettings.Location = new Point(8, 28);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
 
@@ -946,5 +948,101 @@ namespace ASCOM.cam86
         {
 
         }
+
+        public double setCCDTemperature
+        {
+            get { return ccdTemp; }
+            set
+            {
+                ccdTemp = value;
+                updateTemperatureLabel(tempCCDbackup);
+            }
+        }
+
+        private void labelTemperature_Click(object sender, EventArgs e)
+        {
+            String value = "0.0";
+
+            if (InputBox("Enter temperature", "Please enter the sensor temperature. Note that this may be overriden by the imaging software!"
+                , ref value) == DialogResult.OK)
+            {
+                try
+                {
+                    double setTemp = double.Parse(value);
+                    if (cameraConnected)
+                    {
+                        Camera.tempCCDTemp = setTemp;
+                        Camera.tempCCDTempDirty = true;
+
+                        // call event from the main form
+                        if (updateMainFormCameraParameters != null)
+                            updateMainFormCameraParameters(sender, e);
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid temperature entered", "Invalid Temperature", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        public DialogResult InputBox(string title, string promptText, ref string value)
+        {
+            Form form = new Form();
+            Label label = new Label();
+            TextBox textBox = new TextBox();
+            Button buttonOk = new Button();
+            Button buttonCancel = new Button();
+
+            form.Text = title;
+            label.Text = promptText;
+            textBox.Text = value;
+
+            buttonOk.Text = "OK";
+            buttonCancel.Text = "Cancel";
+            buttonOk.DialogResult = DialogResult.OK;
+            buttonCancel.DialogResult = DialogResult.Cancel;
+
+            label.SetBounds(9, 20, 372, 13);
+            textBox.SetBounds(12, 36, 372, 20);
+            buttonOk.SetBounds(228, 72, 75, 23);
+            buttonCancel.SetBounds(309, 72, 75, 23);
+
+            label.AutoSize = true;
+            textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
+            buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            form.ClientSize = new Size(396, 107);
+            form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
+            form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.MinimizeBox = false;
+            form.MaximizeBox = false;
+            form.AcceptButton = buttonOk;
+            form.CancelButton = buttonCancel;
+
+            if (checkBoxNightMode.Checked)
+            {
+                form.BackColor = Color.Black;
+                form.ForeColor = Color.Red;
+
+                buttonOk.BackColor = Color.Red;
+                buttonOk.ForeColor = Color.Orange;
+                buttonCancel.BackColor = Color.Red;
+                buttonCancel.ForeColor = Color.Orange;
+
+                label.ForeColor = Color.Red;
+
+                textBox.BackColor = Color.DarkRed;
+                textBox.ForeColor = Color.Orange;
+            }
+
+            DialogResult dialogResult = form.ShowDialog();
+            value = textBox.Text;
+            return dialogResult;
+        }
+
     }
 }

@@ -44,6 +44,9 @@
 //                                       Add a button to toggle between image info only or settings as well when camera is connected
 // 27-Sep-2017  Luka Pravica     0.7.3   Increase revision number because of the white-line bug fixes in the LLD when CCD temperature control (like Cooling Aid in APT) is used
 // 24-Nov-2017  Oscar Casanova   0.7.5   Add Ki and Kd to be compatible with full PID control implemented
+// 13-Dec-2017  Luka Pravica     0.7.6   Minor interface tweaks. 
+//                                       Temperature in settings shows set temperature as well.
+//                                       Added option to double-click temperature label to set temperature, independent of the imaging software.
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -101,7 +104,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.5";
+        internal static string driverVersion = "0.7.6";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -148,6 +151,7 @@ namespace ASCOM.cam86
         internal static string PIDintegralGainDefault = 0.0.ToString(); // dirty way to take care of the internalisation
         internal static string PIDderivativeGainDefault = 0.0.ToString(); // dirty way to take care of the internalisation
         internal static string DHT22presentDefault = "false";
+        internal static double tempCCDTemp = 0.0;
 
         internal static bool traceState;
         internal static short gainState;
@@ -188,6 +192,7 @@ namespace ASCOM.cam86
         internal static bool PIDintegralGainStateDirty = true;
         internal static bool PIDderivativeGainStateDirty = true;
         internal static bool DHT22presentStateDirty = true;
+        internal static bool tempCCDTempDirty = true;
 
 
         /// <summary>
@@ -482,6 +487,7 @@ namespace ASCOM.cam86
                     PIDintegralGainStateDirty = true;
                     PIDderivativeGainStateDirty = true;
                     DHT22presentStateDirty = true;
+                    tempCCDTempDirty = true;
 
                     DHTTimer.Enabled = false;
 
@@ -579,6 +585,7 @@ namespace ASCOM.cam86
         private static bool slowCoolingCoolingDirection = true; //true==cooling, false==heating
         private static double slowCoolingTarger = 0.0;
         private static System.Timers.Timer slowCoolingTimer;
+
 
 
         public void AbortExposure()
@@ -1341,6 +1348,9 @@ namespace ASCOM.cam86
             {
                 tl.LogMessage("SetCCDTemperature Set", value.ToString());
 
+                if (setupForm != null)
+                    setupForm.setCCDTemperature = value;
+
                 if ((value < MinSetTemp) || (value > MaxSetTemp))
                 {
                     tl.LogMessage("SetCCDTemperature Set", "InvalidValueException SetCCDTemperature must be in range [minSetTemp;maxSetTemp]");
@@ -2005,7 +2015,10 @@ namespace ASCOM.cam86
                 updateProfile = true;
             }
 
-
+            if (tempCCDTempDirty)
+            {
+                this.SetCCDTemperature = tempCCDTemp;
+            }
 
             if (DHT22presentStateDirty)
             {
