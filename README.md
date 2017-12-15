@@ -1,12 +1,10 @@
 # cam86 ASCOM driver
-Custom ASCOM driver for CAM86 DIY camera (Sony ICX453AQ).
+Custom ASCOM driver for CAM86 DIY camera (Sony ICX453AQ sensor).
 
 This project is based on work of Ukrainian telescope amateurs.
-Most of their work is shared on this huge forum thread:
-http://www.astroclub.kiev.ua/forum/index.php?topic=28929.0
+Most of their work is shared on this huge [forum thread](http://www.astroclub.kiev.ua/forum/index.php?topic=28929.0).
 
-The current work is described here
-http://www.iceinspace.com.au/forum/showthread.php?t=146493
+The current work is described [here](http://www.iceinspace.com.au/forum/showthread.php?t=146493).
 
 
 **Download** the executable version of the driver [here](https://github.com/axsdenied/cam86_ASCOM/blob/master/cam86_setup.exe).
