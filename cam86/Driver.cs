@@ -47,6 +47,7 @@
 // 13-Dec-2017  Luka Pravica     0.7.6   Minor interface tweaks. 
 //                                       Temperature in settings shows set temperature as well.
 //                                       Added option to double-click temperature label to set temperature, independent of the imaging software.
+// 13-Dec-2017  Luka Pravica     0.7.7   Update version information only due to a mistake in the reased version
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -104,7 +105,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.6";
+        internal static string driverVersion = "0.7.7";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";

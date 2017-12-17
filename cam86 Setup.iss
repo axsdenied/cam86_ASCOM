@@ -5,8 +5,8 @@
 [Setup]
 AppID={{48d86f1b-0f09-4bdc-a0c3-1aa42245fd2b}
 AppName=ASCOM cam86 Camera Driver
-AppVerName=ASCOM cam86 Camera Driver 0.7.6
-AppVersion=0.7.6
+AppVerName=ASCOM cam86 Camera Driver 0.7.7
+AppVersion=0.7.7
 AppPublisher=<www.astroccd.org>
 AppPublisherURL=http://www.astroccd.org
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
