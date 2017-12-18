@@ -74,9 +74,9 @@
             this.numericUpDownPIDKp = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownPIDKd = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownPIDKi = new System.Windows.Forms.NumericUpDown();
+            this.labelTemperature = new System.Windows.Forms.Label();
             this.panelImageInfo = new System.Windows.Forms.Panel();
             this.buttonHideSettings = new System.Windows.Forms.Button();
-            this.labelTemperature = new System.Windows.Forms.Label();
             this.labelDHTinfo = new System.Windows.Forms.Label();
             this.labelStdDev = new System.Windows.Forms.Label();
             this.labelMinMaxIntensities = new System.Windows.Forms.Label();
@@ -588,7 +588,7 @@
             // labelVersionInformation
             // 
             this.labelVersionInformation.AutoSize = true;
-            this.labelVersionInformation.Location = new System.Drawing.Point(5, 9);
+            this.labelVersionInformation.Location = new System.Drawing.Point(12, 9);
             this.labelVersionInformation.Name = "labelVersionInformation";
             this.labelVersionInformation.Size = new System.Drawing.Size(40, 13);
             this.labelVersionInformation.TabIndex = 0;
@@ -685,6 +685,19 @@
         "U ARE DOING");
             this.numericUpDownPIDKi.ValueChanged += new System.EventHandler(this.numericUpDownPIDKi_ValueChanged);
             // 
+            // labelTemperature
+            // 
+            this.labelTemperature.AutoSize = true;
+            this.labelTemperature.Location = new System.Drawing.Point(136, 24);
+            this.labelTemperature.Name = "labelTemperature";
+            this.labelTemperature.Size = new System.Drawing.Size(33, 13);
+            this.labelTemperature.TabIndex = 69;
+            this.labelTemperature.Text = "T=0C";
+            this.toolTip1.SetToolTip(this.labelTemperature, "Measured sensor temperature / set sensor temperature.\r\nDouble-click to manually s" +
+        "et the temperature. \r\nNOTE: Your imaging application can override the manual set" +
+        "ting.");
+            this.labelTemperature.DoubleClick += new System.EventHandler(this.labelTemperature_DoubleClick);
+            // 
             // panelImageInfo
             // 
             this.panelImageInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -710,19 +723,6 @@
             this.buttonHideSettings.Text = "▼";
             this.buttonHideSettings.UseVisualStyleBackColor = true;
             this.buttonHideSettings.Click += new System.EventHandler(this.buttonHideSettings_Click);
-            // 
-            // labelTemperature
-            // 
-            this.labelTemperature.AutoSize = true;
-            this.labelTemperature.Location = new System.Drawing.Point(136, 24);
-            this.labelTemperature.Name = "labelTemperature";
-            this.labelTemperature.Size = new System.Drawing.Size(33, 13);
-            this.labelTemperature.TabIndex = 69;
-            this.labelTemperature.Text = "T=0C";
-            this.toolTip1.SetToolTip(this.labelTemperature, "Measured sensor temperature / set sensor temperature.\r\nDouble-click to manually s" +
-        "et the temperature. \r\nNOTE: Your imaging application can override the manual set" +
-        "ting.");
-            this.labelTemperature.Click += new System.EventHandler(this.labelTemperature_Click);
             // 
             // labelDHTinfo
             // 

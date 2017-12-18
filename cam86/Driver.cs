@@ -47,7 +47,10 @@
 // 13-Dec-2017  Luka Pravica     0.7.6   Minor interface tweaks. 
 //                                       Temperature in settings shows set temperature as well.
 //                                       Added option to double-click temperature label to set temperature, independent of the imaging software.
-// 13-Dec-2017  Luka Pravica     0.7.7   Update version information only due to a mistake in the reased version
+// 17-Dec-2017  Luka Pravica     0.7.7   Update version information only due to a mistake in the reased version
+// 18-Dec-2017  Luka Pravica     0.7.8   Fix bug where manually set temperature was resetting itself
+//                                       Manual temperature control is double-click now instead of single click
+//                                       Minor interface bug fixes
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -105,7 +108,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.7";
+        internal static string driverVersion = "0.7.8";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -1342,6 +1345,10 @@ namespace ASCOM.cam86
             get
             {
                 double temp = cameraGetSetTemp();
+
+                if (setupForm != null)
+                    setupForm.setCCDTemperature = temp;
+
                 tl.LogMessage("SetCCDTemperature Get", temp.ToString());
                 return temp;
             }
@@ -2019,6 +2026,7 @@ namespace ASCOM.cam86
             if (tempCCDTempDirty)
             {
                 this.SetCCDTemperature = tempCCDTemp;
+                tempCCDTempDirty = false;
             }
 
             if (DHT22presentStateDirty)

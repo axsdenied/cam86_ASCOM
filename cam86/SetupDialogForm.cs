@@ -321,7 +321,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 28);
+                panelImageInfo.Location = new Point(8, labelVersionInformation.Location.X + labelVersionInformation.Size.Height);
                 panelImageInfo.Visible = true;
                 panelSettings.Visible = false;
                 panelGainOffset.Visible = false;
@@ -337,7 +337,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = false;
 
-                panelImageInfo.Location = new Point(8, 28);
+                panelImageInfo.Location = new Point(8, labelVersionInformation.Location.X + labelVersionInformation.Size.Height);
                 panelSettings.Location = new Point(8, panelImageInfo.Location.Y + panelImageInfo.Size.Height);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
@@ -360,7 +360,7 @@ namespace ASCOM.cam86
             {
                 panelAscom.Visible = true;
 
-                panelSettings.Location = new Point(8, 28);
+                panelSettings.Location = new Point(8, labelVersionInformation.Location.X + labelVersionInformation.Size.Height);
                 panelGainOffset.Location = new Point(8, panelSettings.Location.Y + panelSettings.Size.Height);
                 panelCooling.Location = new Point(8, panelGainOffset.Location.Y + panelGainOffset.Size.Height);
 
@@ -959,33 +959,6 @@ namespace ASCOM.cam86
             }
         }
 
-        private void labelTemperature_Click(object sender, EventArgs e)
-        {
-            String value = "0.0";
-
-            if (InputBox("Enter temperature", "Please enter the sensor temperature. Note that this may be overriden by the imaging software!"
-                , ref value) == DialogResult.OK)
-            {
-                try
-                {
-                    double setTemp = double.Parse(value);
-                    if (cameraConnected)
-                    {
-                        Camera.tempCCDTemp = setTemp;
-                        Camera.tempCCDTempDirty = true;
-
-                        // call event from the main form
-                        if (updateMainFormCameraParameters != null)
-                            updateMainFormCameraParameters(sender, e);
-                    }
-                }
-                catch
-                {
-                    MessageBox.Show("Invalid temperature entered", "Invalid Temperature", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
         public DialogResult InputBox(string title, string promptText, ref string value)
         {
             Form form = new Form();
@@ -1044,5 +1017,31 @@ namespace ASCOM.cam86
             return dialogResult;
         }
 
+        private void labelTemperature_DoubleClick(object sender, EventArgs e)
+        {
+            String value = "0.0";
+
+            if (InputBox("Enter temperature", "Please enter the sensor temperature. Note that this may be overriden by the imaging software!"
+                , ref value) == DialogResult.OK)
+            {
+                try
+                {
+                    double setTemp = double.Parse(value);
+                    if (cameraConnected)
+                    {
+                        Camera.tempCCDTemp = setTemp;
+                        Camera.tempCCDTempDirty = true;
+
+                        // call event from the main form
+                        if (updateMainFormCameraParameters != null)
+                            updateMainFormCameraParameters(sender, e);
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid temperature entered", "Invalid Temperature", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
 }
