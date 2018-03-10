@@ -51,6 +51,7 @@
 // 18-Dec-2017  Luka Pravica     0.7.8   Fix bug where manually set temperature was resetting itself
 //                                       Manual temperature control is double-click now instead of single click
 //                                       Minor interface bug fixes
+// 10-Mar-2018  Luka Pravica     0.7.9   Include an updated low level DLL (with bug fixes)
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -108,7 +109,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.8";
+        internal static string driverVersion = "0.7.9";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";

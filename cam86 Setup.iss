@@ -5,7 +5,7 @@
 AppID={{48d86f1b-0f09-4bdc-a0c3-1aa42245fd2b}
 AppName=ASCOM cam86 Camera Driver
 AppPublisher=Luka Pravica
-AppVersion=0.7.8
+AppVersion=0.7.9
 AppPublisherURL=http://www.iceinspace.com.au/forum/showthread.php?t=146493
 AppSupportURL=http://www.iceinspace.com.au/forum/showthread.php?t=146493
 AppUpdatesURL=https://github.com/axsdenied/cam86_ASCOM  
