@@ -266,7 +266,7 @@ namespace ASCOM.cam86
         public void updateTemperatureLabel(double sensorTemperature)
         {
             tempCCDbackup = sensorTemperature;
-            labelTemperature.Text = "T=" + sensorTemperature.ToString("F1") + "/" + ccdTemp.ToString("F1") + "C";
+            labelTemperature.Text = "T= " + sensorTemperature.ToString("F1") + " / " + ccdTemp.ToString("F1") + "C";
         }
 
         public SetupDialogForm()

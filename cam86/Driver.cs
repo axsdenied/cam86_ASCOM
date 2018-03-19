@@ -52,6 +52,7 @@
 //                                       Manual temperature control is double-click now instead of single click
 //                                       Minor interface bug fixes
 // 10-Mar-2018  Luka Pravica     0.7.9   Include an updated low level DLL (with bug fixes)
+// 17-Mar-2018  Luka Pravica     0.7.10  Removed delays in the low level DLL (see previous version) and moved them here
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -106,10 +107,13 @@ namespace ASCOM.cam86
         /// </summary>
         internal static string driverID = "ASCOM.cam86.Camera";
 
+        bool cameraStartingUp = true;
+        int startUpDelay = 100; // 100ms delay after each command during the startup period. 
+
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.9";
+        internal static string driverVersion = "0.7.10";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -435,7 +439,10 @@ namespace ASCOM.cam86
                     cameraConnectedState = true;
 
                     // set any parameters that have changed recently
+
+                    cameraStartingUp = true; // used to slow down sending of commands to camera during the initialisation
                     updateCameraParametersEvent(this, null);
+                    cameraStartingUp = false;
 
                     // do we need to open the settings window
                     if (settingsWindowOpenOnConnectState)
@@ -473,6 +480,7 @@ namespace ASCOM.cam86
                         setupForm = null;
                     }
 
+                    cameraStartingUp = true;
 
                     // mark all camera parameters dirty so they get uploaded if we connect again
                     gainStateDirty = true;
@@ -1849,6 +1857,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set gain to " + gainState);
                     //throw new ASCOM.InvalidOperationException("Can't set gain to " + gainState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1864,6 +1877,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set offset to " + offsetState);
                     //throw new ASCOM.InvalidOperationException("Can't set offset to " + offsetState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1879,6 +1897,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set reading delay to " + readingTimeState);
                     //throw new ASCOM.InvalidOperationException("Can't set reading delay to " + readingTimeState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1894,6 +1917,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set 'TEC during reading' to " + coolerDuringReadingState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'TEC during reading' to " + TECduringReadingState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1901,6 +1929,7 @@ namespace ASCOM.cam86
             {
                 tl.LogMessage("updateCameraParametersEvent", "Mono sensor set to " + monoSensorState);
                 monoSensorStateDirty = false;
+
                 updateProfile = true;
             }
 
@@ -1908,6 +1937,7 @@ namespace ASCOM.cam86
             {
                 tl.LogMessage("updateCameraParametersEvent", "On top set to " + onTopState);
                 onTopStateDirty = false;
+
                 updateProfile = true;
             }
 
@@ -1915,6 +1945,7 @@ namespace ASCOM.cam86
             {
                 tl.LogMessage("updateCameraParametersEvent", "Night mode set to " + nightModeSettingsState);
                 nightModeSettingsStateDirty = false;
+
                 updateProfile = true;
             }
 
@@ -1931,6 +1962,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set TEC starting power to " + coolingStartingPowerPercentState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'TEC during reading' to " + TECduringReadingState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1946,6 +1982,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set TEC max power to to " + coolingMaxPowerPercentState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'TEC during reading' to " + TECduringReadingState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -1991,6 +2032,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set PID Kp to " + PIDproportionalGainState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'cameraSetPIDproportionalGain' to " + PIDproportionalGainState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -2006,6 +2052,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set PID Ki to " + PIDintegralGainState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'cameraSetPIDintegralGain' to " + PIDintegralGainState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -2021,6 +2072,11 @@ namespace ASCOM.cam86
                     tl.LogMessage("updateCameraParametersEvent", "Can't set PID Kd to " + PIDderivativeGainState);
                     //throw new ASCOM.InvalidOperationException("Can't set 'cameraSetPIDderivativeGain' to " + PIDderviativeGainState);
                 }
+
+                // do we need to have a small delay during the startup time?
+                if (cameraStartingUp)
+                    System.Threading.Thread.Sleep(startUpDelay);
+
                 updateProfile = true;
             }
 
@@ -2043,7 +2099,7 @@ namespace ASCOM.cam86
 
                 updateProfile = true;
             }
-
+            
             if (updateProfile)
                 WriteProfile();
         }
