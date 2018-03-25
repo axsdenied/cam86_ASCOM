@@ -53,6 +53,10 @@
 //                                       Minor interface bug fixes
 // 10-Mar-2018  Luka Pravica     0.7.9   Include an updated low level DLL (with bug fixes)
 // 17-Mar-2018  Luka Pravica     0.7.10  Removed delays in the low level DLL (see previous version) and moved them here
+// 25-Mar-2018  Luka Pravica     0.8.0   Minor bug fixes and interface tweaks
+//                                       Added display of cooling power in addition to the temperature
+//                                       Show mean value of the image
+//                                       Reduce image acquisition time by doing calculations of stdDev inline
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -113,7 +117,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.7.10";
+        internal static string driverVersion = "0.8.0";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -161,6 +165,7 @@ namespace ASCOM.cam86
         internal static string PIDderivativeGainDefault = 0.0.ToString(); // dirty way to take care of the internalisation
         internal static string DHT22presentDefault = "false";
         internal static double tempCCDTemp = 0.0;
+        internal static double tempCoolingPower = 0.0;
 
         internal static bool traceState;
         internal static short gainState;
@@ -694,7 +699,7 @@ namespace ASCOM.cam86
                 // update only if the data needs to be displayed
                 if (setupForm != null)
                 {
-                    setupForm.updateTemperatureLabel(temp);
+                    setupForm.updateTemperatureLabel(temp, tempCoolingPower);
                 }
 
                 return temp;
@@ -848,6 +853,10 @@ namespace ASCOM.cam86
                 {
                     slowCoolingTimer.Enabled = false;
                     cameraCoolingOff();
+
+                    tempCoolingPower = 0;
+                    if (setupForm != null)
+                        setupForm.setCoolerPower = 0;
                 }
             }
         }
@@ -856,9 +865,13 @@ namespace ASCOM.cam86
         {
             get
             {
-                double coolerPower = cameraGetCoolerPower();
-                tl.LogMessage("CoolerPower Get", coolerPower.ToString());
-                return coolerPower;
+                tempCoolingPower = cameraGetCoolerPower();
+
+                if (setupForm != null)
+                    setupForm.setCoolerPower = tempCoolingPower;
+
+                tl.LogMessage("CoolerPower Get", tempCoolingPower.ToString());
+                return tempCoolingPower;
             }
         }
 
@@ -992,7 +1005,12 @@ namespace ASCOM.cam86
             {
                 int minIntensity = 0;
                 int maxIntensity = 0;
+                double mean = 0;
+                double mean_stdDevLine = 0;
                 double exposureDuration = 0;
+
+                double stdDevFrame = 0;
+                double stdDevLine = 0;
 
                 if (!cameraImageReady)
                 {
@@ -1014,8 +1032,16 @@ namespace ASCOM.cam86
                     int i, j;
                     int ci, cj;
 
+                    // used for calculation of standard deviation
+                    IList<int> dataFrameStdDev = new List<int>();
+
                     minIntensity = maxPixelADU;
                     maxIntensity = 0;
+                    long intensitySum = 0;
+                    int pixelCounter = 0;
+                    int pixelCounterLine = 0;
+                    double M2_frame = 0;
+                    double M2_line = 0;
                     if (cameraBinX == 1)
                     {
                         cj = 0;
@@ -1025,13 +1051,33 @@ namespace ASCOM.cam86
                             for (i = cameraStartX; i < (cameraStartX + cameraNumX); i++)
                             {
                                 pixelpoint = (int*)(zeropixelpoint + (j * ccdWidth + i));
-                                cameraImageArray[ci, cj] = *pixelpoint;
-                                if (cameraImageArray[ci, cj] > maxPixelADU) cameraImageArray[ci, cj] = maxPixelADU;
+                                int intensity = *pixelpoint;
+                                cameraImageArray[ci, cj] = intensity;
 
-                                if (cameraImageArray[ci, cj] < minIntensity)
-                                    minIntensity = cameraImageArray[ci, cj];
-                                if (cameraImageArray[ci, cj] > maxIntensity)
-                                    maxIntensity = cameraImageArray[ci, cj];
+                                if (intensity > maxPixelADU) intensity = maxPixelADU;
+
+                                if (intensity < minIntensity)
+                                    minIntensity = intensity;
+                                if (intensity > maxIntensity)
+                                    maxIntensity = intensity;
+
+                                intensitySum += intensity;
+
+                                // add new point to the calculation of the standard deviation for the frame
+                                pixelCounter++;
+                                double delta = (double)intensity - mean;
+                                mean += delta / pixelCounter;
+                                M2_frame += delta * (intensity - mean);
+
+                                // add new pont to the calculation of the standard deviation for the two middle lines
+                                //if ((cj == cameraStartY + cameraNumY / 2) || (cj == cameraStartY + cameraNumY / 2 + 1))
+                                if ((cj == 500) || (cj == 501))
+                                {
+                                    pixelCounterLine++;
+                                    delta = (double)intensity - mean_stdDevLine;
+                                    mean_stdDevLine += delta / pixelCounterLine;
+                                    M2_line += delta * (intensity - mean_stdDevLine);
+                                }
 
                                 ci++;
                             }
@@ -1047,26 +1093,70 @@ namespace ASCOM.cam86
                             for (i = cameraStartX; i < (cameraStartX + cameraNumX); i++)
                             {
                                 pixelpoint = (int*)(zeropixelpoint + (2 * j * ccdWidth + i * 2));
-                                cameraImageArray[ci, cj] = *pixelpoint;
-                                if (cameraImageArray[ci, cj] > maxPixelADU) cameraImageArray[ci, cj] = maxPixelADU;
+                                int intensity = *pixelpoint;
+                                cameraImageArray[ci, cj] = intensity;
 
-                                if (cameraImageArray[ci, cj] < minIntensity)
-                                    minIntensity = cameraImageArray[ci, cj];
-                                if (cameraImageArray[ci, cj] > maxIntensity)
-                                    maxIntensity = cameraImageArray[ci, cj];
+                                if (intensity > maxPixelADU)
+                                    intensity = maxPixelADU;
+
+                                if (intensity < minIntensity)
+                                    minIntensity = intensity;
+                                if (intensity > maxIntensity)
+                                    maxIntensity = intensity;
+
+                                intensitySum += intensity;
+
+                                // add new point to the calculation of the standard deviation for the frame
+                                pixelCounter++;
+                                double delta = (double)intensity - mean;
+                                mean += delta / pixelCounter;
+                                M2_frame += delta * (intensity - mean);
+
+                                // add new pont to the calculation of the standard deviation for the two middle lines
+                                //if ((cj == cameraStartY + cameraNumY / 2) || (cj == cameraStartY + cameraNumY / 2 + 1))
+                                if ((cj == 500) || (cj == 501))
+                                {
+                                    pixelCounterLine++;
+                                    delta = (double)intensity - mean_stdDevLine;
+                                    mean_stdDevLine += delta / pixelCounterLine++; ;
+                                    M2_line += delta * (intensity - mean_stdDevLine);
+                                }
 
                                 ci++;
                             }
                             cj++;
                         }
                     }
+
+                    // final calculation of the standard deviation for the two middle lines
+                    try
+                    {
+                        stdDevLine = Math.Sqrt((double)(M2_line / pixelCounterLine));
+                    }
+                    catch
+                    {
+                        stdDevLine = 0;
+                    }
+
+                    // final calculation of the standard deviation for the frame
+                    try
+                    {
+                        stdDevFrame = Math.Sqrt((double)(M2_frame / pixelCounter));
+                    }
+                    catch
+                    {
+                        stdDevFrame = 0;
+                    }
                 }
 
                 exposureStopTimestamp = DateTime.Now;
                 exposureDuration = (exposureStopTimestamp - exposureStartTimestamp).TotalSeconds;
-
+                
                 if (setupForm != null)
                 {
+                    /* moved inline to the frame reading code
+                     * to speed up calculations
+                     * 
                     // calculate the standard deviation of a line
                     //for x:= 0 to 2 * Width - 1 do tts[x]:= bufim[x + 500 * Width];
                     //skv2:= PopnStdDev(tts);
@@ -1074,7 +1164,7 @@ namespace ASCOM.cam86
                     for (int y = 0; y < 2; y++) // we will loop 2 rows starting at 500 (why 500, probably it does not matter, may be the centre of the image???)
                     {
                         for (int x = 0; x < cameraNumX; x++) // loop all columns for the two rows
-                            dataLineStdDev.Add(cameraImageArray[x, y]);
+                            dataLineStdDev.Add(cameraImageArray[x, 500 + y]);
                     }
                     double lineStdDev = 0;
                     try
@@ -1085,7 +1175,11 @@ namespace ASCOM.cam86
                     {
                         lineStdDev = 0;
                     }
+                    */
 
+                    /* moved inline to the frame reading code
+                     * to speed up calculations
+                     * 
                     // calculate the standard deviation of the frame.
                     // for x:= 0 to Width * Height - 1 do tts[x]:= bufim[x];
                     // skv:= PopnStdDev(tts);
@@ -1096,6 +1190,7 @@ namespace ASCOM.cam86
                             dataFrameStdDev.Add(cameraImageArray[x, y]);
                     }
                     double frameStdDev = 0;
+                    elapsed1 = DateTime.Now - start;
                     try
                     {
                         frameStdDev = Math.Sqrt(VarianceP(dataFrameStdDev));
@@ -1104,8 +1199,9 @@ namespace ASCOM.cam86
                     {
                         frameStdDev = 0;
                     }
-
-                    setupForm.updateInfoLabels(minIntensity, maxIntensity, exposureDuration, lineStdDev, frameStdDev);
+                    */
+                    
+                    setupForm.updateInfoLabels(minIntensity, maxIntensity, mean, exposureDuration, stdDevLine, stdDevFrame);
                 }
 
                 // set any parameters that have changed recently

@@ -688,14 +688,13 @@
             // labelTemperature
             // 
             this.labelTemperature.AutoSize = true;
-            this.labelTemperature.Location = new System.Drawing.Point(136, 24);
+            this.labelTemperature.Location = new System.Drawing.Point(73, 5);
             this.labelTemperature.Name = "labelTemperature";
             this.labelTemperature.Size = new System.Drawing.Size(33, 13);
             this.labelTemperature.TabIndex = 69;
             this.labelTemperature.Text = "T=0C";
             this.toolTip1.SetToolTip(this.labelTemperature, "Measured sensor temperature / set sensor temperature.\r\nDouble-click to manually s" +
-        "et the temperature. \r\nNOTE: Your imaging application can override the manual set" +
-        "ting.");
+        "et the temperature. \r\nNOTE: Your imaging application can override the manual setting.");
             this.labelTemperature.DoubleClick += new System.EventHandler(this.labelTemperature_DoubleClick);
             // 
             // panelImageInfo
@@ -715,7 +714,7 @@
             // buttonHideSettings
             // 
             this.buttonHideSettings.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonHideSettings.Location = new System.Drawing.Point(78, 59);
+            this.buttonHideSettings.Location = new System.Drawing.Point(6, 59);
             this.buttonHideSettings.Margin = new System.Windows.Forms.Padding(0);
             this.buttonHideSettings.Name = "buttonHideSettings";
             this.buttonHideSettings.Size = new System.Drawing.Size(43, 20);
@@ -727,7 +726,7 @@
             // labelDHTinfo
             // 
             this.labelDHTinfo.AutoSize = true;
-            this.labelDHTinfo.Location = new System.Drawing.Point(4, 42);
+            this.labelDHTinfo.Location = new System.Drawing.Point(63, 59);
             this.labelDHTinfo.Name = "labelDHTinfo";
             this.labelDHTinfo.Size = new System.Drawing.Size(115, 13);
             this.labelDHTinfo.TabIndex = 68;
@@ -736,7 +735,7 @@
             // labelStdDev
             // 
             this.labelStdDev.AutoSize = true;
-            this.labelStdDev.Location = new System.Drawing.Point(68, 5);
+            this.labelStdDev.Location = new System.Drawing.Point(4, 42);
             this.labelStdDev.Name = "labelStdDev";
             this.labelStdDev.Size = new System.Drawing.Size(52, 13);
             this.labelStdDev.TabIndex = 67;
@@ -747,9 +746,9 @@
             this.labelMinMaxIntensities.AutoSize = true;
             this.labelMinMaxIntensities.Location = new System.Drawing.Point(4, 24);
             this.labelMinMaxIntensities.Name = "labelMinMaxIntensities";
-            this.labelMinMaxIntensities.Size = new System.Drawing.Size(69, 13);
+            this.labelMinMaxIntensities.Size = new System.Drawing.Size(112, 13);
             this.labelMinMaxIntensities.TabIndex = 64;
-            this.labelMinMaxIntensities.Text = "Min/Max:0/0";
+            this.labelMinMaxIntensities.Text = "Min/Max/Mean:0/0/0";
             // 
             // labelExposureDuration
             // 

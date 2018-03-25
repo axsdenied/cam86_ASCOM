@@ -67,6 +67,7 @@ namespace ASCOM.cam86
         private string backuplabelVersionInformation = "";
 
         private double ccdTemp = 0;
+        private double coolerPower = 0;
 
         private settingsWindowSizeE windowSize = settingsWindowSizeE.cameraOnFullOptions;
 
@@ -190,9 +191,9 @@ namespace ASCOM.cam86
             }
         }
 
-        public void updateInfoLabels(int minIntensity, int maxIntensity, double exposureDuration, double stdDevLine, double stdDevFrame)
+        public void updateInfoLabels(int minIntensity, int maxIntensity, double mean, double exposureDuration, double stdDevLine, double stdDevFrame)
         {
-            labelMinMaxIntensities.Text = "Min=" + minIntensity.ToString() + ", Max=" + maxIntensity.ToString();
+            labelMinMaxIntensities.Text = "Min=" + minIntensity.ToString() + ", Max=" + maxIntensity.ToString() + ", Mean=" + mean.ToString("F1");
             labelExposureDuration.Text = "Time:" + exposureDuration.ToString("F2") + "s";
             labelStdDev.Text = "StdDev L=" + stdDevLine.ToString("F1") + ", F=" + stdDevFrame.ToString("F1");
         }
@@ -263,10 +264,10 @@ namespace ASCOM.cam86
             }
         }
 
-        public void updateTemperatureLabel(double sensorTemperature)
+        public void updateTemperatureLabel(double sensorTemperature, double TECcoolingPower)
         {
             tempCCDbackup = sensorTemperature;
-            labelTemperature.Text = "T= " + sensorTemperature.ToString("F1") + " / " + ccdTemp.ToString("F1") + "C";
+            labelTemperature.Text = "T= " + sensorTemperature.ToString("F1") + " / " + ccdTemp.ToString("F1") + "C" + " (" + TECcoolingPower.ToString("F0") + "%)";
         }
 
         public SetupDialogForm()
@@ -474,7 +475,16 @@ namespace ASCOM.cam86
 
             checkBoxDHT22.Checked = Camera.DHT22presentState;
             if (!checkBoxDHT22.Checked)
+            {
                 labelDHTinfo.Text = "DHT: no sensor";
+                labelDHTinfo.Visible = false;
+                buttonHideSettings.Location = new Point(86, buttonHideSettings.Location.Y); // shift the button to left
+            }
+            else
+            {
+                labelDHTinfo.Visible = true;
+                buttonHideSettings.Location = new Point(6, buttonHideSettings.Location.Y); // center the button
+            }
         }
 
         private void cmdOK_Click(object sender, EventArgs e) // OK button event handler
@@ -586,6 +596,8 @@ namespace ASCOM.cam86
                 numericUpDownCondensationWarningTemperatureDifference.ForeColor = Color.Orange;
                 buttonAbout.BackColor = Color.DarkRed;
                 buttonAbout.ForeColor = Color.Orange;
+                buttonHideSettings.BackColor = Color.DarkRed;
+                buttonHideSettings.ForeColor = Color.Orange;
                 numericUpDownPIDKp.BackColor = Color.DarkRed;
                 numericUpDownPIDKp.ForeColor = Color.Orange;
                 numericUpDownPIDKi.BackColor = Color.DarkRed;
@@ -625,6 +637,8 @@ namespace ASCOM.cam86
                 numericUpDownCondensationWarningTemperatureDifference.ForeColor = SystemColors.WindowText;
                 buttonAbout.BackColor = SystemColors.Window;
                 buttonAbout.ForeColor = SystemColors.WindowText;
+                buttonHideSettings.BackColor = SystemColors.Window;
+                buttonHideSettings.ForeColor = SystemColors.WindowText;
                 numericUpDownPIDKp.BackColor = SystemColors.Window;
                 numericUpDownPIDKp.ForeColor = SystemColors.WindowText;
                 numericUpDownPIDKi.BackColor = SystemColors.Window;
@@ -917,6 +931,9 @@ namespace ASCOM.cam86
                 labelDHTinfo.Text = "DHT: no sensor";
                 labelVersionInformation.Text = backuplabelVersionInformation;
 
+                labelDHTinfo.Visible = false;
+                buttonHideSettings.Location = new Point(86, buttonHideSettings.Location.Y); // shift the button to left
+
                 // remove yellow warning colour if it was used
                 if (checkBoxNightMode.Checked)
                 {
@@ -926,6 +943,11 @@ namespace ASCOM.cam86
                 {
                     labelVersionInformation.BackColor = SystemColors.Control;
                 }
+            }
+            else
+            {
+                labelDHTinfo.Visible = true;
+                buttonHideSettings.Location = new Point(6, buttonHideSettings.Location.Y); // center the button
             }
         }
 
@@ -955,7 +977,17 @@ namespace ASCOM.cam86
             set
             {
                 ccdTemp = value;
-                updateTemperatureLabel(tempCCDbackup);
+                updateTemperatureLabel(tempCCDbackup, coolerPower);
+            }
+        }
+
+        public double setCoolerPower
+        {
+            get { return coolerPower; }
+            set
+            {
+                coolerPower = value;
+                updateTemperatureLabel(tempCCDbackup, coolerPower);
             }
         }
 
@@ -969,6 +1001,7 @@ namespace ASCOM.cam86
 
             form.Text = title;
             label.Text = promptText;
+            label.TextAlign = ContentAlignment.MiddleCenter;
             textBox.Text = value;
 
             buttonOk.Text = "OK";
@@ -977,18 +1010,20 @@ namespace ASCOM.cam86
             buttonCancel.DialogResult = DialogResult.Cancel;
 
             label.SetBounds(9, 20, 372, 13);
-            textBox.SetBounds(12, 36, 372, 20);
-            buttonOk.SetBounds(228, 72, 75, 23);
-            buttonCancel.SetBounds(309, 72, 75, 23);
+            textBox.SetBounds(12, 110, 372, 20);
+            buttonOk.SetBounds(60, 120, 75, 23);
+            buttonCancel.SetBounds(240, 120, 75, 23);
 
             label.AutoSize = true;
+            
             textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
             buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
-            form.ClientSize = new Size(396, 107);
+            form.ClientSize = new Size(396,150);
             form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
-            form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            //form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            form.ClientSize = new Size(Math.Max(300, label.Right + 10), Math.Max(150, buttonCancel.Bottom + buttonCancel.Size.Height + 10));
             form.FormBorderStyle = FormBorderStyle.FixedDialog;
             form.StartPosition = FormStartPosition.CenterScreen;
             form.MinimizeBox = false;
@@ -1021,8 +1056,10 @@ namespace ASCOM.cam86
         {
             String value = "0.0";
 
-            if (InputBox("Enter temperature", "Please enter the sensor temperature. Note that this may be overriden by the imaging software!"
-                , ref value) == DialogResult.OK)
+            if (InputBox("Enter temperature", "Please enter the sensor temperature.\n\n" + 
+                "Note that this may be overriden by the imaging software!\n" +
+                "The temperature in the fits header may not match the real sensor temperature!\n\n" +
+                " USE WITH CAUTION", ref value) == DialogResult.OK)
             {
                 try
                 {
