@@ -117,7 +117,7 @@ namespace ASCOM.cam86
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.8.0";
+        internal static string driverVersion = "0.8.1";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
