@@ -215,7 +215,7 @@ namespace ASCOM.cam86
 
             if (temperature > 100 || temperature < -80)
             {
-                labelDHTinfo.Text = "DHT: bad sensor reading";
+                labelDHTinfo.Text = "DHT: bad reading";
 
                 labelVersionInformation.Text = backuplabelVersionInformation;
 
@@ -238,7 +238,7 @@ namespace ASCOM.cam86
                 return;
             }
 
-            labelDHTinfo.Text = "DHT: H=" + humidity.ToString("F1") + "% , T=" + temperature.ToString("F1") + "C , DP=" + dewpoint.ToString("F1") + "C";
+            labelDHTinfo.Text = "DHT     H=" + humidity.ToString("F0") + "% , T=" + temperature.ToString("F1") + "C , DP=" + dewpoint.ToString("F1") + "C";
 
             dewPointBackup = dewpoint;
 
@@ -485,6 +485,16 @@ namespace ASCOM.cam86
                 labelDHTinfo.Visible = true;
                 buttonHideSettings.Location = new Point(6, buttonHideSettings.Location.Y); // center the button
             }
+
+            // check date for the April Fools' Day joke
+            if (DateTime.Now.Day == 1 && DateTime.Now.Month == 4)
+            {
+                buttonCloudsOffAprilFoolsDay.Visible = true;
+            }
+            else
+            {
+                buttonCloudsOffAprilFoolsDay.Visible = false;
+            }
         }
 
         private void cmdOK_Click(object sender, EventArgs e) // OK button event handler
@@ -598,6 +608,8 @@ namespace ASCOM.cam86
                 buttonAbout.ForeColor = Color.Orange;
                 buttonHideSettings.BackColor = Color.DarkRed;
                 buttonHideSettings.ForeColor = Color.Orange;
+                buttonCloudsOffAprilFoolsDay.BackColor = Color.DarkRed;
+                buttonCloudsOffAprilFoolsDay.ForeColor = Color.Orange;
                 numericUpDownPIDKp.BackColor = Color.DarkRed;
                 numericUpDownPIDKp.ForeColor = Color.Orange;
                 numericUpDownPIDKi.BackColor = Color.DarkRed;
@@ -639,6 +651,8 @@ namespace ASCOM.cam86
                 buttonAbout.ForeColor = SystemColors.WindowText;
                 buttonHideSettings.BackColor = SystemColors.Window;
                 buttonHideSettings.ForeColor = SystemColors.WindowText;
+                buttonCloudsOffAprilFoolsDay.BackColor = SystemColors.Window;
+                buttonCloudsOffAprilFoolsDay.ForeColor = SystemColors.WindowText;
                 numericUpDownPIDKp.BackColor = SystemColors.Window;
                 numericUpDownPIDKp.ForeColor = SystemColors.WindowText;
                 numericUpDownPIDKi.BackColor = SystemColors.Window;
@@ -1079,6 +1093,12 @@ namespace ASCOM.cam86
                     MessageBox.Show("Invalid temperature entered", "Invalid Temperature", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void buttonCloudsOffAprilFoolsDay_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Switching clouds off. Please wait...\nNote: This command can take up to a month (or two) to be completed.", "April Fools' Day", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            buttonCloudsOffAprilFoolsDay.Visible = false;
         }
     }
 }

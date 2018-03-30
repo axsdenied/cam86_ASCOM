@@ -85,6 +85,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.buttonCloudsOffAprilFoolsDay = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.panelGainOffset.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownReadingTime)).BeginInit();
@@ -694,7 +695,8 @@
             this.labelTemperature.TabIndex = 69;
             this.labelTemperature.Text = "T=0C";
             this.toolTip1.SetToolTip(this.labelTemperature, "Measured sensor temperature / set sensor temperature.\r\nDouble-click to manually s" +
-        "et the temperature. \r\nNOTE: Your imaging application can override the manual setting.");
+        "et the temperature. \r\nNOTE: Your imaging application can override the manual set" +
+        "ting.");
             this.labelTemperature.DoubleClick += new System.EventHandler(this.labelTemperature_DoubleClick);
             // 
             // panelImageInfo
@@ -717,7 +719,7 @@
             this.buttonHideSettings.Location = new System.Drawing.Point(6, 59);
             this.buttonHideSettings.Margin = new System.Windows.Forms.Padding(0);
             this.buttonHideSettings.Name = "buttonHideSettings";
-            this.buttonHideSettings.Size = new System.Drawing.Size(43, 20);
+            this.buttonHideSettings.Size = new System.Drawing.Size(32, 20);
             this.buttonHideSettings.TabIndex = 80;
             this.buttonHideSettings.Text = "▼";
             this.buttonHideSettings.UseVisualStyleBackColor = true;
@@ -726,7 +728,7 @@
             // labelDHTinfo
             // 
             this.labelDHTinfo.AutoSize = true;
-            this.labelDHTinfo.Location = new System.Drawing.Point(63, 59);
+            this.labelDHTinfo.Location = new System.Drawing.Point(44, 59);
             this.labelDHTinfo.Name = "labelDHTinfo";
             this.labelDHTinfo.Size = new System.Drawing.Size(115, 13);
             this.labelDHTinfo.TabIndex = 68;
@@ -807,6 +809,16 @@
             this.label6.TabIndex = 78;
             this.label6.Text = "PID Kp";
             // 
+            // buttonCloudsOffAprilFoolsDay
+            // 
+            this.buttonCloudsOffAprilFoolsDay.Location = new System.Drawing.Point(156, 4);
+            this.buttonCloudsOffAprilFoolsDay.Name = "buttonCloudsOffAprilFoolsDay";
+            this.buttonCloudsOffAprilFoolsDay.Size = new System.Drawing.Size(64, 23);
+            this.buttonCloudsOffAprilFoolsDay.TabIndex = 81;
+            this.buttonCloudsOffAprilFoolsDay.Text = "Clouds off";
+            this.buttonCloudsOffAprilFoolsDay.UseVisualStyleBackColor = true;
+            this.buttonCloudsOffAprilFoolsDay.Click += new System.EventHandler(this.buttonCloudsOffAprilFoolsDay_Click);
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -814,6 +826,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(434, 408);
+            this.Controls.Add(this.buttonCloudsOffAprilFoolsDay);
             this.Controls.Add(this.panelCooling);
             this.Controls.Add(this.panelImageInfo);
             this.Controls.Add(this.panelAscom);
@@ -917,5 +930,6 @@
         private System.Windows.Forms.NumericUpDown numericUpDownPIDKd;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button buttonCloudsOffAprilFoolsDay;
     }
 }

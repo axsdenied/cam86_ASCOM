@@ -12,8 +12,8 @@
 //                                       Add mono sensor setting
 // 19-feb-2017  Luka Pravica     0.4     Add bias-before-exposure option
 // 27-feb-2017  Luka Pravica     0.5     Remove settings form and move all settings to the profile dialog
-//                                           Profile dialog with settings is modified significantly and can be called via ascom profile or via imaging software
-//                                           Different options can be displayed depending how it is opened
+//                                       Profile dialog with settings is modified significantly and can be called via ascom profile or via imaging software
+//                                       Different options can be displayed depending how it is opened
 //                                       Numerous ASCOM improvements and bug fixes
 //                                       Make driver ASCOM compliant, ASCOM compliance checker passes without errors now
 // 2-mar-2017   Luka Pravica     0.6     Add about box to settings
@@ -57,6 +57,9 @@
 //                                       Added display of cooling power in addition to the temperature
 //                                       Show mean value of the image
 //                                       Reduce image acquisition time by doing calculations of stdDev inline
+// 30/3/2018    Luka Pravica     0.8.1   Recompile as target x86 to force 32-bit mode only
+// 30/3/2018    Luka Pravica     0.8.2   Fix small interface bug where the humidity was hidden
+//                                       Added April Fools' Day joke :-)
 //                                       
 // --------------------------------------------------------------------------------
 
