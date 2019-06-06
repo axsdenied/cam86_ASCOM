@@ -60,6 +60,7 @@
 // 30/3/2018    Luka Pravica     0.8.1   Recompile as target x86 to force 32-bit mode only
 // 30/3/2018    Luka Pravica     0.8.2   Fix small interface bug where the humidity was hidden
 //                                       Added April Fools' Day joke :-)
+// 2/6/2019     Luka Pravica     0.8.3   Added delay at camera connection - after powering on the camera it seems to take several seconds before camera starts responding
 //                                       
 // --------------------------------------------------------------------------------
 
@@ -114,13 +115,15 @@ namespace ASCOM.cam86
         /// </summary>
         internal static string driverID = "ASCOM.cam86.Camera";
 
+        internal const int DriverInitTimeout_ms = 10000; // maximum time in ms for the camera initialisation
+
         bool cameraStartingUp = true;
         int startUpDelay = 100; // 100ms delay after each command during the startup period. 
 
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        internal static string driverVersion = "0.8.1";
+        internal static string driverVersion = "0.8.3";
         private static string driverDescription = "Cam86 v" + driverVersion + " ASCOM Driver";
         internal static string driverLLversion = "";
         internal static string driverFirmwareVersion = "";
@@ -444,13 +447,44 @@ namespace ASCOM.cam86
                         throw new ASCOM.NotConnectedException("Cant connect to " + this.Name);
                     }
                     tl.LogMessage("Connected Set", "cameraConnectedState=true");
-                    cameraConnectedState = true;
+
+
+                    // the camera seems to need 2-3 seconds after being connected to to start responding properly
+                    // add a loop that will wait until we get non-zero firmware, i.e. a valid firmware
+                    // if we get a timeout then there is a bigger issue with the connection, we abort
+                    DateTime startTime = DateTime.Now;
+                    double elapsedTime = 0;
+                    try
+                    {
+                        byte dfv = 0;
+                        do
+                        {
+                            dfv = cameraGetFirmwareVersion();
+                            if (dfv == 0)
+                                Thread.Sleep(200);
+                            else
+                                break;
+
+                            elapsedTime = (DateTime.Now - startTime).TotalMilliseconds;
+                        } while (elapsedTime < DriverInitTimeout_ms);
+
+                        if (dfv == 0)
+                            System.Windows.Forms.MessageBox.Show("Error connecting to camera. The driver will continue but may not work correctly");
+
+                        driverFirmwareVersion = dfv.ToString(); // it will return 0 if the cam86 is not connected
+                        tl.LogMessage("Connected Set", "Init time = " + elapsedTime + ",ms firmware=" + driverFirmwareVersion);
+                    }
+                    catch
+                    {
+                        driverFirmwareVersion = "0";
+                    }
 
                     // set any parameters that have changed recently
-
                     cameraStartingUp = true; // used to slow down sending of commands to camera during the initialisation
                     updateCameraParametersEvent(this, null);
                     cameraStartingUp = false;
+
+                    cameraConnectedState = true;
 
                     // do we need to open the settings window
                     if (settingsWindowOpenOnConnectState)
@@ -461,15 +495,6 @@ namespace ASCOM.cam86
                         DHTTimer.Enabled = true;
                     else
                         DHTTimer.Enabled = false;
-
-                    try
-                    {
-                        driverFirmwareVersion = cameraGetFirmwareVersion().ToString(); // it will return 0 if the cam86 is not connected
-                    }
-                    catch
-                    {
-                        driverFirmwareVersion = "0";
-                    }
                 }
                 else
                 {
